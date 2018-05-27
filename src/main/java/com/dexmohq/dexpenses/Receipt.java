@@ -18,8 +18,8 @@ public class Receipt {
     private LocalDate date;
     private LocalTime time;
     private MonetaryAmount total;
+    private PaymentMethod paymentMethod;
 
-    // todo payment: EC, cash...
     // todo receipt items
 
 }

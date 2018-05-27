@@ -1,5 +1,6 @@
 package com.dexmohq.dexpenses.process;
 
+import com.dexmohq.dexpenses.PaymentMethod;
 import com.dexmohq.dexpenses.categorize.Categorizer;
 import com.dexmohq.dexpenses.categorize.Category;
 import com.dexmohq.dexpenses.Receipt;
@@ -17,7 +18,7 @@ import java.time.LocalTime;
  * @author Henrik Drefs
  */
 @RequiredArgsConstructor
-public class ReceiptProcessor {//todo split ocr and parse functionality
+public class ReceiptProcessor {
 
     private final Categorizer categorizer;
 
@@ -44,6 +45,8 @@ public class ReceiptProcessor {//todo split ocr and parse functionality
         result.setHeader(header);
         final ExtractedResult<Category> extractedCategory = categorizer.getCategoryExtractor(header).extract(lines);
         result.setCategory(extractedCategory.getValue());
+        final ExtractedResult<PaymentMethod> extractedPaymentMethod = PaymentMethodExtractor.INSTANCE.extract(lines);
+        result.setPaymentMethod(extractedPaymentMethod.getValue());
         return result;
     }
 
