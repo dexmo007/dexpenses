@@ -28,5 +28,12 @@
         }
       ]
     }
+  ],
+  "health": [
+    {
+      "anyOfKeywords": [
+        "apotheke"
+      ]
+    }
   ]
 }
