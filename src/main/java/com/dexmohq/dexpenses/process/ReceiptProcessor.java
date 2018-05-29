@@ -1,11 +1,12 @@
 package com.dexmohq.dexpenses.process;
 
 import com.dexmohq.dexpenses.PaymentMethod;
+import com.dexmohq.dexpenses.Receipt;
 import com.dexmohq.dexpenses.categorize.Categorizer;
 import com.dexmohq.dexpenses.categorize.Category;
-import com.dexmohq.dexpenses.Receipt;
 import com.dexmohq.dexpenses.categorize.InvalidCategorizerConfigurationException;
 import com.dexmohq.dexpenses.extract.*;
+import com.dexmohq.dexpenses.util.config.InvalidConfigurationException;
 import lombok.RequiredArgsConstructor;
 
 import javax.money.MonetaryAmount;
@@ -21,21 +22,23 @@ import java.time.LocalTime;
 public class ReceiptProcessor {
 
     private final Categorizer categorizer;
+    private final Extractor<LocalDate> dateExtractor;
+    private final Extractor<LocalTime> timeExtractor;
 
-    public static ReceiptProcessor load(File categorizerFile) throws IOException, InvalidCategorizerConfigurationException {
+    public static ReceiptProcessor load(File categorizerFile, File dateConfigFile, File timeConfigFile) throws IOException, InvalidCategorizerConfigurationException, InvalidConfigurationException {
         final Categorizer categorizer = Categorizer.load(categorizerFile);
-        return new ReceiptProcessor(categorizer);
+        final ConfigurableDateExtractor dateExtractor = ConfigurableDateExtractor.load(dateConfigFile);
+        final ConfigurableTimeExtractor timeExtractor = ConfigurableTimeExtractor.load(timeConfigFile);
+        return new ReceiptProcessor(categorizer, dateExtractor, timeExtractor);
     }
 
-    private static final DateExtractor DATE_EXTRACTOR = new DateExtractor();
-    private static final TimeExtractor TIME_EXTRACTOR = new TimeExtractor();
     private static final TotalAmountExtractor TOTAL_AMOUNT_EXTRACTOR = new TotalAmountExtractor();
 
     public Receipt process(String[] lines) {
         final Receipt result = new Receipt();
-        final ExtractedResult<LocalDate> extractedDate = DATE_EXTRACTOR.extract(lines);
+        final ExtractedResult<LocalDate> extractedDate = dateExtractor.extract(lines);
         result.setDate(extractedDate.getValue());
-        final ExtractedResult<LocalTime> extractedTime = TIME_EXTRACTOR.extract(lines);
+        final ExtractedResult<LocalTime> extractedTime = timeExtractor.extract(lines);
         result.setTime(extractedTime.getValue());
         final ExtractedResult<MonetaryAmount> extractedTotalAmount = TOTAL_AMOUNT_EXTRACTOR.extract(lines);
         result.setTotal(extractedTotalAmount.getValue());

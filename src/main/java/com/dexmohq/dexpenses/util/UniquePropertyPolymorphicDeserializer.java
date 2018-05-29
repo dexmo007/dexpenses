@@ -31,7 +31,11 @@ public class UniquePropertyPolymorphicDeserializer<T> extends StdDeserializer<T>
     }
 
     public T emptyValue(DeserializationContext ctx) throws JsonMappingException {
-        throw ctx.instantiationException(_valueClass, "No default class for empty value provided");
+        throw ctx.instantiationException(_valueClass, "No default value for empty JSON provided");
+    }
+
+    public Class<? extends T> defaultValueClass() {
+        return null;
     }
 
     @Override
@@ -56,7 +60,9 @@ public class UniquePropertyPolymorphicDeserializer<T> extends StdDeserializer<T>
                 break;
             }
         }
-
+        if (clazz == null) {
+            clazz = defaultValueClass();
+        }
         if (clazz == null) {
             throw ctx.instantiationException(this._valueClass, "No registered unique properties found for polymorphic deserialization");
         }
