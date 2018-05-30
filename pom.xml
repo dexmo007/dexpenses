@@ -9,7 +9,14 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <java.version>10</java.version>
+
         <jackson.version>2.9.5</jackson.version>
+
+        <junit.jupiter.version>5.2.0</junit.jupiter.version>
+        <junit.platform.version>1.2.0</junit.platform.version>
     </properties>
 
     <build>
@@ -17,11 +24,24 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
                 <configuration>
-                    <source>10</source>
-                    <target>10</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
+
+            <!--<plugin>-->
+                <!--<artifactId>maven-surefire-plugin</artifactId>-->
+                <!--<version>2.21.0</version>-->
+                <!--<dependencies>-->
+                    <!--<dependency>-->
+                        <!--<groupId>org.junit.platform</groupId>-->
+                        <!--<artifactId>junit-platform-surefire-provider</artifactId>-->
+                        <!--<version>${junit.platform.version}</version>-->
+                    <!--</dependency>-->
+                <!--</dependencies>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 
@@ -42,27 +62,15 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sourceforge.tess4j</groupId>
-            <artifactId>tess4j</artifactId>
-            <version>4.0.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.asprise.ocr</groupId>
             <artifactId>java-ocr-api</artifactId>
             <version>15.3.0.3</version>
         </dependency>
 
-
-        <!--<dependency>-->
-        <!--<groupId>javax.money</groupId>-->
-        <!--<artifactId>money-api</artifactId>-->
-        <!--<version>1.0.3</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.javamoney</groupId>
             <artifactId>moneta</artifactId>
-            <version>1.2</version>
+            <version>1.1</version>
         </dependency>
 
         <dependency>
@@ -87,6 +95,14 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Test -->
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
 
 
     </dependencies>

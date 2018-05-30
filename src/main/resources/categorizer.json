@@ -35,5 +35,12 @@
         "apotheke"
       ]
     }
+  ],
+  "entertainment": [
+    {
+      "anyOfKeywords": [
+        "sausalitos"
+      ]
+    }
   ]
 }
