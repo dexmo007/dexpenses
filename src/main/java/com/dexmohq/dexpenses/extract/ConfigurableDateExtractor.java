@@ -2,13 +2,18 @@ package com.dexmohq.dexpenses.extract;
 
 import com.dexmohq.dexpenses.util.UniquePropertyPolymorphicDeserializer;
 import com.dexmohq.dexpenses.util.config.ConfigurationLoader;
+import com.dexmohq.dexpenses.util.config.DateTimeFormat;
 import com.dexmohq.dexpenses.util.config.InvalidConfigurationException;
+import com.dexmohq.dexpenses.util.config.Regex;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -32,7 +37,7 @@ public class ConfigurableDateExtractor extends AbstractConfigurableRegexExtracto
     public static ConfigurableDateExtractor load(File dateConfigFile) throws IOException, InvalidConfigurationException {
         final Config config = new ConfigurationLoader().load(dateConfigFile, Config.class);
         return new ConfigurableDateExtractor(
-                config.entrySet().stream()
+                config.parsers.entrySet().stream()
                         .collect(toLinkedMap(e -> Pattern.compile(e.getKey()), e -> e.getValue().getParser())));
     }
 
@@ -45,48 +50,64 @@ public class ConfigurableDateExtractor extends AbstractConfigurableRegexExtracto
         }
     }
 
-    @JsonDeserialize(contentUsing = DateParseConfigDeserializer.class)
-    public static class Config extends LinkedHashMap<String, DateParserProvider> {
 
+    public static class Config {
+
+        @JsonIgnore
+        @Valid
+        private final LinkedHashMap<@Regex String, DateParserProvider> parsers = new LinkedHashMap<>();
+
+        @JsonAnySetter
+        public void add(String regex, DateParserProvider dateParserProvider) {
+            parsers.put(regex, dateParserProvider);
+        }
     }
 
+    @JsonDeserialize(using = DateParseConfigDeserializer.class)
     public interface DateParserProvider {
         Function<Matcher, LocalDate> getParser();
     }
 
+    @JsonDeserialize
     public static class FormatterParser implements DateParserProvider {
 
+        @DateTimeFormat
         private final String format;
+        @Min(1)
         private final Integer group;
 
         @JsonCreator
         public FormatterParser(@JsonProperty("format") String format,
                                @JsonProperty(value = "group") Integer group) {
             this.format = format;
-            this.group = group == null ? 1 : group;
+            this.group = group;
         }
 
         @Override
         public Function<Matcher, LocalDate> getParser() {
             final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-            if (group < 0) {
-                throw new IllegalArgumentException("regex capture group index cannot be < 0");
-            }
+            final int group = this.group == null ? 1 : this.group;
             return m -> LocalDate.parse(m.group(group), formatter);
         }
 
     }
 
+    @JsonDeserialize
     public static class IndividualDateParser implements DateParserProvider {
-
-        private final int day;
-        private final int month;
-        private final int year;
+        @Min(1)
+        @NotNull
+        private final Integer day;
+        @Min(1)
+        @NotNull
+        private final Integer month;
+        @Min(1)
+        @NotNull
+        private final Integer year;
 
         @JsonCreator
-        private IndividualDateParser(@JsonProperty("day") int day,
-                                     @JsonProperty("month") int month,
-                                     @JsonProperty("year") int year) {
+        private IndividualDateParser(@JsonProperty("day") Integer day,
+                                     @JsonProperty("month") Integer month,
+                                     @JsonProperty("year") Integer year) {
             this.day = day;
             this.month = month;
             this.year = year;
