@@ -19,10 +19,13 @@ public enum PaymentMethod {
             Pattern.compile("^\\s*girocard\\s*$", Pattern.CASE_INSENSITIVE)
     ),
     CREDIT(
-            Pattern.compile("gegeben\\s*VISA", Pattern.CASE_INSENSITIVE)
+            Pattern.compile("gegeben\\s*VISA", Pattern.CASE_INSENSITIVE),
+            Pattern.compile("visa\\s*credit", Pattern.CASE_INSENSITIVE)
     ), CASH(
             Pattern.compile("gegeben\\s*bar", Pattern.CASE_INSENSITIVE)
-    );
+//            Pattern.compile("gegeben", Pattern.CASE_INSENSITIVE)//todo and zurück in the next line?
+    ),
+    UNKNOWN(Pattern.compile(".*"));
 
     private final List<Pattern> patterns;
 
