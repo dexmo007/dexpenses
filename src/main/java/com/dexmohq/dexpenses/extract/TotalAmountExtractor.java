@@ -15,6 +15,7 @@ public class TotalAmountExtractor extends RegexExtractor<MonetaryAmount> {
 
     private static final CurrencyUnit DEFAULT_CURRENCY = Monetary.getCurrency("EUR");
 
+    private static final Pattern TOTAL_REGEX = Pattern.compile("^\\s*(gesamt)\\s*(EUR)?\\s*(\\d+)\\s*[,.]\\s*(\\d{2})", Pattern.CASE_INSENSITIVE);
     private static final Pattern REGEX = Pattern.compile("^\\s*(summe|(gesamt)?[3b]etrag)\\s*(EUR)\\s*(\\d+)\\s*[,.]\\s*(\\d{2})", Pattern.CASE_INSENSITIVE);
     private static final Pattern WITHOUT_CURRENCY_REGEX = Pattern.compile("^\\s*(summe|(gesamt)?[3b]etrag)[^\\d]*(\\d+)\\s*[,.]\\s*(\\d{2})", Pattern.CASE_INSENSITIVE);
 
@@ -36,6 +37,7 @@ public class TotalAmountExtractor extends RegexExtractor<MonetaryAmount> {
 
     @SuppressWarnings("unchecked")
     private static final ExtractMapping<MonetaryAmount>[] EXTRACT_MAPPINGS = new ExtractMapping[]{
+            new ExtractMapping(TOTAL_REGEX, DEFAULT_CURRENCY_MONEY_PARSER),
             new ExtractMapping(REGEX, MONEY_PARSER),
             new ExtractMapping(WITHOUT_CURRENCY_REGEX, DEFAULT_CURRENCY_MONEY_PARSER)
     };
